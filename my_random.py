@@ -86,7 +86,7 @@ def uniform(a,b):
     else :
         return a+(b-a)*random()
     
-def binomevariate(n=1, p=0.5):
+def binomialvariate(n=1, p=0.5):
     if not type(n)==int and 0<p<1:
         raise ValueError("Attention aux entrées")
     return(sum(random() < p for _ in range(n)))
@@ -114,7 +114,7 @@ def expovariate(lmbda=1.0):
 
 def gammavariate(alpha, beta=1.0):
     if alpha <= 0.0 or beta <= 0.0:
-        raise ValueError("Alpha et Beta doivent etre positifs")
+        raise ZeroDivisionError("Alpha et Beta doivent etre positifs")
     if alpha < 1.0:   # Transformation de Johnk
         return gammavariate(alpha+1.0, beta) * (random() ** (1.0/alpha))
 
@@ -132,7 +132,7 @@ def gammavariate(alpha, beta=1.0):
             
 def betavariate(alpha, beta):
     if alpha <= 0.0 or beta <= 0.0:
-        raise ValueError("Alpha and Beta doivent etre positifs")
+        raise ZeroDivisionError("Alpha and Beta doivent etre positifs")
     x = gammavariate(alpha, 1.0)
     y = gammavariate(beta, 1.0)
     return x / (x + y)
@@ -159,3 +159,27 @@ def gauss(mu=0.0, sigma=1.0):
     # On garde z1 pour l'appel suivant
     _gauss_next = z1
     return mu + sigma * z0
+
+def lognormvariate(mu, sigma):
+    return math.exp(gauss(mu, sigma))
+
+def normalvariate(mu=0.0, sigma=1.0):
+    while True:
+        u1 = random()
+        u2 = 1.0 - random()   # évite log(0)
+        z = 1.7155277699214135 * (u1 - 0.5) / u2
+        x = z * z / 4.0
+        if x <= -math.log(u2):   # test d’acceptation
+            return mu + sigma * z
+
+def paretovariate(alpha):
+    if alpha<=0:
+        raise ZeroDivisionError("Alpha doit être strictement positif")
+    u = 1.0 - random()   # évite log(0) si U=1 exactement
+    return u ** (-1.0 / alpha)
+
+def weibullvariate(alpha, beta):
+    if not (alpha>0 and beta>0):
+        raise ZeroDivisionError("Alpha et Beta doivent etre positifs")
+    u = 1.0 - random()   # évite log(0) si u=1 exactement
+    return beta * (-math.log(u)) ** (1.0 / alpha)
